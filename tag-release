@@ -162,6 +162,8 @@ conditional_echo "-- PREVIOUS TAG: $PREVIOUS_TAG"
 # Get previous release number
 PREVIOUS_RELEASE=$(echo $PREVIOUS_TAG | cut -d'/' -f 3 | cut -d'v' -f2 )
 
+conditional_echo "PREVIOUS_RELEASE $PREVIOUS_RELEASE"
+
 conditional_echo "- Creating release tag"
 # Get last commit
 LASTCOMMIT=$(echo $(git rev-parse $REMOTE/$BRANCH))
@@ -193,7 +195,7 @@ if [ -z "$NEEDSTAG" ]; then
     if [ "$BRANCH" == "main" ]; then
         NEWTAG="v$VNUM1.$VNUM2.$VNUM3"
     elif [ "$BRANCH" == "stage" ]; then
-        NEWTAG="$VNUM1.$VNUM2.$VNUM3rc"
+        NEWTAG="rc$VNUM1.$VNUM2.$VNUM3"
     fi
     conditional_echo "-- Release number: $NEWTAG"
     # Check to see if new tag already exists
