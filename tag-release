@@ -125,7 +125,7 @@ cd "${REPO_DIR}"
 if [ "$BRANCH" == "" ]; then
     conditional_echo "-- ERROR: BRANCH option is mandatory."
     exit 1
-elif [[ "$BRANCH" != "stage" || "$BRANCH" != "main" ]]; then
+elif [ "$BRANCH" != "stage" ] || ["$BRANCH" != "main" ]; then
     conditional_echo "-- ERROR: Wrong branch. Possible values: [stage | main] "
     exit 1
 fi
@@ -190,10 +190,10 @@ if [ -z "$NEEDSTAG" ]; then
     fi
 
     # Create new tag number
-    if [ "$BRANCH" == "main "]; then
+    if [ "$BRANCH" == "main" ]; then
         NEWTAG="v$VNUM1.$VNUM2.$VNUM3"
-    elif [ "$BRANCH" == "main "]; then
-        NEWTAG="rc$VNUM1.$VNUM2.$VNUM3"
+    elif [ "$BRANCH" == "stage" ]; then
+        NEWTAG="$VNUM1.$VNUM2.$VNUM3rc"
     fi
     conditional_echo "-- Release number: $NEWTAG"
     # Check to see if new tag already exists
