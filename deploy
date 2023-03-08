@@ -19,17 +19,15 @@ git checkout "$TAG"
 
 # Install npm dependencies and compile the project
 npm ci
-npx hardhat compile
+npx hardhat compile --force
 
 # Run script to deploy the contracts
 npx hardhat run scripts/deploy.js
 
 # Tag created using main branch (v profix) or stage (rc suffix)
 if [[ $TAG =~ ^v.* ]]; then
-echo "entra V"
     DIR="docs/prod/abi/$TAG"
 elif [[ $TAG =~ .*rc$ ]]; then
-echo "entra RC"
     DIR="docs/stage/abi/$TAG"
 fi
 
