@@ -35,7 +35,7 @@ echo "DIR $DIR"
 
 # Publish the ABI to a specific GitHub Pages location
 mkdir -p $DIR
-cp artifacts/contracts/*/*.json $DIR
+cp abi/*.json $DIR
 #git add $DIR
 #git commit -m "Publish ABI for version $TAG"
 #git push origin master:gh-pages docs/abi/<tag>/<contractName>.json
