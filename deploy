@@ -1,12 +1,14 @@
 #!/bin/bash
 
+DIR=""
+
 # Get the list of tags from the repository
 TAGS=$(git ls-remote --tags --ref --sort="v:refname" origin | awk -F/ '{print $3}' | sort -r)
 
 # Present the list of tags to the user
 echo "Choose a tag:"
 select TAG in $TAGS; do
-  if [ -n "$tag" ]; then
+  if [ -n "$TAG" ]; then
     break
   fi
 done
@@ -17,25 +19,27 @@ git checkout "$TAG"
 
 # Install npm dependencies and compile the project
 npm ci
-npx hardhat compile
+npx hardhat compile --force
 
 # Run script to deploy the contracts
 npx hardhat run scripts/deploy.js
 
 # Tag created using main branch (v profix) or stage (rc suffix)
 if [[ $TAG =~ ^v.* ]]; then
-    DIR = "docs/prod/abi/$TAG"
-elif [[ $tag =~ .*rc$ ]]; then
-    DIR = "docs/stage/abi/$TAG"
+    DIR="docs/prod/abi/$TAG"
+elif [[ $TAG =~ .*rc$ ]]; then
+    DIR="docs/stage/abi/$TAG"
 fi
+
+echo "DIR $DIR"
 
 # Publish the ABI to a specific GitHub Pages location
 mkdir -p $DIR
-cp artifacts/contracts/*/*.json $DIR
-git add $DIR
-git commit -m "Publish ABI for version $TAG"
-git push origin master:gh-pages docs/abi/<tag>/<contractName>.json
+cp abi/*.json $DIR
+#git add $DIR
+#git commit -m "Publish ABI for version $TAG"
+#git push origin master:gh-pages docs/abi/<tag>/<contractName>.json
 
 # Restore local code
-git checkout -
-git stash pop
+#git checkout -
+#git stash pop

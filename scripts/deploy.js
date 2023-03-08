@@ -5,6 +5,7 @@
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
 const hre = require("hardhat");
+const fs = require('fs').promises;
 
 async function main() {
   const currentTimestampInSeconds = Math.round(Date.now() / 1000);
@@ -17,6 +18,11 @@ async function main() {
   const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
 
   await lock.deployed();
+
+  const { abi: lockABI } = await hre.artifacts.readArtifact("Lock");
+
+  await fs.mkdir('abi/', { recursive: true });
+  await fs.writeFile('abi/Lock.json', `${JSON.stringify(lockABI, null, 2)}\n`, { flag: 'w' });
 
   console.log(
     `Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`
