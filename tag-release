@@ -125,7 +125,7 @@ cd "${REPO_DIR}"
 if [ "$BRANCH" == "" ]; then
     conditional_echo "-- ERROR: BRANCH option is mandatory."
     exit 1
-elif [ "$BRANCH" != "stage" && "$BRANCH" != "main" ]; then
+elif [[ "$BRANCH" != "stage" && "$BRANCH" != "main" ]]; then
     conditional_echo "-- ERROR: Wrong branch. Possible values: [stage | main] "
     exit 1
 fi
