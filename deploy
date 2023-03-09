@@ -28,7 +28,7 @@ fi
 
 # Checkout the selected branch and install npm dependencies
 git checkout $BRANCH
-npm ci
+npm ci -q --no-progress
 
 # Compile project
 npx hardhat compile --force
