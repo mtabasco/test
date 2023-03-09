@@ -46,11 +46,12 @@ if [[ $NETWORK == "mainnet" || $NETWORK == "goerli" ]]; then
   DIR="docs/$NETWORK/abi"
 
   echo "DIR $DIR"
-  git checkout gh-pages
-
+  
   # Publish the ABI to a specific GitHub Pages location
   mkdir -p $DIR
   cp abi/*.json $DIR
+
+  git checkout gh-pages
   git add $DIR
   git commit -m "Publish ABI for deployment to $NETWORK"
   git push origin gh-pages
