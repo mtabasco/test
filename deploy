@@ -23,7 +23,7 @@ done
 # Save current working directory and stash changes if needed
 cwd=$(pwd)
 if [ -n "$(git status --porcelain)" ]; then
-  git stash push --include-untracked
+  git stash
 fi
 
 # Checkout the selected branch and install npm dependencies
@@ -41,7 +41,7 @@ if [[ $NETWORK == "mainnet" || $NETWORK == "goerli" ]]; then
   # Update .openzeppelin metadata
   git add .openzeppelin/"$NETWORK".json
   git commit -m "Update .openzeppelin folder"
-  git push origin $branch
+  git push -u origin $branch
 
   DIR="docs/$NETWORK/abi"
 
@@ -54,11 +54,11 @@ if [[ $NETWORK == "mainnet" || $NETWORK == "goerli" ]]; then
 
   git add $DIR
   git commit -m "Publish ABI for deployment to $NETWORK"
-  git push origin gh-pages
+  git push -u origin gh-pages
 fi
 
 # Return to previous branch and pop stash if needed
 git checkout $cwd
 if [ -n "$(git stash list)" ]; then
-  git stash pop
+  git stash apply
 fi
