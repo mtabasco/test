@@ -15,8 +15,8 @@ async function main() {
   const lockedAmount = hre.ethers.utils.parseEther("1");
 
   const Lock = await hre.ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
-
+  const lock = await upgrades.deployProxy(Lock, [unlockTime], { kind: 'uups' });
+  // const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
   await lock.deployed();
 
   const { abi: lockABI } = await hre.artifacts.readArtifact("Lock");

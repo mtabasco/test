@@ -1,45 +1,63 @@
 #!/bin/bash
 
 DIR=""
+NETWORK="localhost"
 
-# Get the list of tags from the repository
-TAGS=$(git ls-remote --tags --ref --sort="v:refname" origin | awk -F/ '{print $3}' | sort -r)
+while [[ "$#" -gt 0 ]]; do
+  case $1 in
+  -n | --network)
+    NETWORK=$2
+    ;;
+  esac
+  shift
+done
 
-# Present the list of tags to the user
-echo "Choose a tag:"
-select TAG in $TAGS; do
-  if [ -n "$TAG" ]; then
+# Get the list of branches from the repository
+BRANCHES=$(git branch --list)
+select BRANCH in $BRANCHES; do
+  if [ ! -z "$BRANCH" ]; then
     break
   fi
 done
 
-# Stash current code and checkout the selected tag
-git stash
-git checkout "$TAG"
+# Save current working directory and stash changes if needed
+cwd=$(pwd)
+if [ -n "$(git status --porcelain)" ]; then
+  git stash push --include-untracked
+fi
 
-# Install npm dependencies and compile the project
+# Checkout the selected branch and install npm dependencies
+git checkout $BRANCH
 npm ci
+
+# Compile project
 npx hardhat compile --force
 
 # Run script to deploy the contracts
-npx hardhat run scripts/deploy.js
+npx hardhat run --network "$NETWORK" scripts/deploy.js
 
-# Tag created using main branch (v profix) or stage (rc suffix)
-if [[ $TAG =~ ^v.* ]]; then
-    DIR="docs/prod/abi/$TAG"
-elif [[ $TAG =~ .*rc$ ]]; then
-    DIR="docs/stage/abi/$TAG"
+if [[ $NETWORK == "mainnet" || $NETWORK == "goerli" ]]; then
+
+  # Update .openzeppelin metadata
+  git add .openzeppelin/"$NETWORK".json
+  git commit -m "Update .openzeppelin folder"
+  git push origin $branch
+
+  DIR="docs/$NETWORK/abi"
+
+  echo "DIR $DIR"
+  git checkout gh-pages
+
+  # Publish the ABI to a specific GitHub Pages location
+  mkdir -p $DIR
+  cp abi/*.json $DIR
+  git add $DIR
+  git commit -m "Publish ABI for deployment to $NETWORK"
+  git push origin gh-pages
 fi
 
-echo "DIR $DIR"
-
-# Publish the ABI to a specific GitHub Pages location
-mkdir -p $DIR
-cp abi/*.json $DIR
-#git add $DIR
-#git commit -m "Publish ABI for version $TAG"
-#git push origin master:gh-pages docs/abi/<tag>/<contractName>.json
-
-# Restore local code
-#git checkout -
-#git stash pop
+# Return to previous branch and pop stash if needed
+#git checkout $cwd
+#if [ -n "$(git stash list)" ]; then
+#  git stash pop
+#fi
