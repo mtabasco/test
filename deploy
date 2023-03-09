@@ -2,11 +2,16 @@
 
 DIR=""
 NETWORK="localhost"
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+VERSIONTYPE="patch"
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
   -n | --network)
     NETWORK=$2
+    ;;
+  -t | --type)
+    VERSIONTYPE=$2
     ;;
   esac
   shift
@@ -19,12 +24,6 @@ select BRANCH in $BRANCHES; do
     break
   fi
 done
-
-# Save current working directory and stash changes if needed
-cwd=$(pwd)
-if [ -n "$(git status --porcelain)" ]; then
-  git stash
-fi
 
 # Checkout the selected branch and install npm dependencies
 git checkout $BRANCH
@@ -43,7 +42,12 @@ if [[ $NETWORK == "mainnet" || $NETWORK == "goerli" ]]; then
   git commit -m "Update .openzeppelin folder"
   git push -u origin $branch
 
-  DIR="docs/$NETWORK/abi"
+  if [[ $BRANCH == "stage" || $BRANCH == "main" ]]; then
+    source ./tag-release -b "$BRANCH" -t "$VERSIONTYPE"
+    DIR="docs/$NETWORK/abi/$TAGVERSION"
+  else
+    DIR="docs/$NETWORK/abi"
+  fi
 
   git checkout gh-pages
 
@@ -56,8 +60,4 @@ if [[ $NETWORK == "mainnet" || $NETWORK == "goerli" ]]; then
   git push -u -f origin gh-pages
 fi
 
-# Return to previous branch and pop stash if needed
-git checkout $cwd
-if [ -n "$(git stash list)" ]; then
-  git stash apply
-fi
+git checkout $CURRENT_BRANCH

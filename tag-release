@@ -162,7 +162,7 @@ conditional_echo "-- PREVIOUS TAG: $PREVIOUS_TAG"
 # Get previous release number
 PREVIOUS_RELEASE=$(echo $PREVIOUS_TAG | awk -F/ '{print $3}' | sed 's/^v//;s/rc.*//;s/-.*//')
 
-conditional_echo "PREVIOUS_RELEASE $PREVIOUS_RELEASE"
+conditional_echo "-- PREVIOUS_RELEASE: $PREVIOUS_RELEASE"
 
 conditional_echo "- Creating release tag"
 # Get last commit
@@ -236,4 +236,5 @@ if [ $CURRENT_BRANCH != "$BRANCH" ]; then
     git stash pop "${GITPARAMS[@]}"
 fi
 
+export TAGVERSION=$NEWTAG
 exit 0
