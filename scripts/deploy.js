@@ -19,11 +19,13 @@ async function main() {
   // const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
   await lock.deployed();
 
-  const { abi: lockABI } = await hre.artifacts.readArtifact("Lock");
+  // Only extract ABIs for mainnet or goerli deployments
+  if (hre.network.name == 'goerli' || hre.network.name == 'mainnet') {
+    const { abi: lockABI, contractName } = await hre.artifacts.readArtifact("Lock");
 
-  await fs.mkdir('abi/', { recursive: true });
-  await fs.writeFile('abi/Lock.json', `${JSON.stringify(lockABI, null, 2)}\n`, { flag: 'w' });
-
+    await fs.mkdir('abi/', { recursive: true });
+    await fs.writeFile(`abi/${contractName}.json`, `${JSON.stringify(lockABI, null, 2)}\n`, { flag: 'w' });
+  }
   console.log(
     `Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`
   );
