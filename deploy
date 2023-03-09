@@ -21,10 +21,10 @@ select BRANCH in $BRANCHES; do
 done
 
 # Save current working directory and stash changes if needed
-cwd=$(pwd)
-if [ -n "$(git status --porcelain)" ]; then
-  git stash
-fi
+#cwd=$(pwd)
+#if [ -n "$(git status --porcelain)" ]; then
+#  git stash
+#fi
 
 # Checkout the selected branch and install npm dependencies
 git checkout $BRANCH
@@ -45,7 +45,6 @@ if [[ $NETWORK == "mainnet" || $NETWORK == "goerli" ]]; then
 
   DIR="docs/$NETWORK/abi"
 
-  echo "DIR $DIR"
   git checkout gh-pages
 
   # Publish the ABI to a specific GitHub Pages location
@@ -54,11 +53,11 @@ if [[ $NETWORK == "mainnet" || $NETWORK == "goerli" ]]; then
 
   git add $DIR
   git commit -m "Publish ABI for deployment to $NETWORK"
-  git push -u origin gh-pages
+  git push -u -f origin gh-pages
 fi
 
 # Return to previous branch and pop stash if needed
-git checkout $cwd
-if [ -n "$(git stash list)" ]; then
-  git stash apply
-fi
+#git checkout $cwd
+#if [ -n "$(git stash list)" ]; then
+#  git stash apply
+#fi
