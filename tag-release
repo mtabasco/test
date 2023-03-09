@@ -237,4 +237,3 @@ if [ $CURRENT_BRANCH != "$BRANCH" ]; then
 fi
 
 export TAGVERSION=$NEWTAG
-exit 0
