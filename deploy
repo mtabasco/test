@@ -3,11 +3,15 @@
 DIR=""
 NETWORK="localhost"
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+VERSIONTYPE="patch"
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
   -n | --network)
     NETWORK=$2
+    ;;
+  -t | --type)
+    VERSIONTYPE=$2
     ;;
   esac
   shift
@@ -38,7 +42,12 @@ if [[ $NETWORK == "mainnet" || $NETWORK == "goerli" ]]; then
   git commit -m "Update .openzeppelin folder"
   git push -u origin $branch
 
-  DIR="docs/$NETWORK/abi"
+  if [[ $BRANCH == "stage" || $BRANCH == "main" ]]; then
+    source ./tag-release -b "$BRANCH" -t "$VERSIONTYPE"
+    DIR="docs/$NETWORK/abi/$TAGVERSION"
+  else
+    DIR="docs/$NETWORK/abi"
+  fi
 
   git checkout gh-pages
 
@@ -52,5 +61,3 @@ if [[ $NETWORK == "mainnet" || $NETWORK == "goerli" ]]; then
 fi
 
 git checkout $CURRENT_BRANCH
-
-
