@@ -6,7 +6,7 @@ pragma solidity 0.8.16;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 
-contract Lock is UUPSUpgradeable, Ownable2StepUpgradeable {
+contract Lock2 is UUPSUpgradeable, Ownable2StepUpgradeable {
     uint public unlockTime;
 
     function _authorizeUpgrade(address) internal override onlyOwner {}
