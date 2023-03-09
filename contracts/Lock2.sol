@@ -6,7 +6,7 @@ pragma solidity 0.8.16;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 
-contract Lock is UUPSUpgradeable, Ownable2StepUpgradeable {
+contract Lock2 is UUPSUpgradeable, Ownable2StepUpgradeable {
     uint public unlockTime;
 
     function _authorizeUpgrade(address) internal override onlyOwner {}
@@ -32,7 +32,7 @@ contract Lock is UUPSUpgradeable, Ownable2StepUpgradeable {
 
         emit Withdrawal(address(this).balance, block.timestamp);
     }
-/*
+
     function getTime() external view returns (uint256) {
         return block.timestamp;
     }
@@ -40,5 +40,5 @@ contract Lock is UUPSUpgradeable, Ownable2StepUpgradeable {
     function getTime1() external view returns (uint256) {
         return block.timestamp + 1;
     }
-    */
+    
 }
