@@ -12,6 +12,7 @@ contract Lock is UUPSUpgradeable, Ownable2StepUpgradeable {
     uint public constant yuyu = 20_000;
     uint public constant bebe = 30_000;
     uint public constant mama = 40_000;
+    uint public constant tutu = 50_000;
 
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
