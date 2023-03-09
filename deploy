@@ -13,7 +13,7 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # Get the list of branches from the repository
-BRANCHES=$(git branch --list)
+BRANCHES=$(git branch --format='%(refname:short)')
 select BRANCH in $BRANCHES; do
   if [ ! -z "$BRANCH" ]; then
     break
