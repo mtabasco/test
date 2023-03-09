@@ -13,6 +13,9 @@ while [[ "$#" -gt 0 ]]; do
   -t | --type)
     VERSIONTYPE=$2
     ;;
+  -x | --no-abi)
+    VERSIONTYPE=$2
+    ;;
   esac
   shift
 done
@@ -46,7 +49,7 @@ if [[ $NETWORK == "mainnet" || $NETWORK == "goerli" ]]; then
     source ./tag-release -b "$BRANCH" -t "$VERSIONTYPE"
     DIR="docs/$NETWORK/abi/$TAGVERSION"
   else
-    DIR="docs/$NETWORK/abi"
+    DIR="docs/$NETWORK/abi/untagged"
   fi
 
   git checkout gh-pages
