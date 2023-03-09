@@ -1,0 +1,64 @@
+#!/bin/bash
+
+DIR=""
+NETWORK="localhost"
+
+while [[ "$#" -gt 0 ]]; do
+  case $1 in
+  -n | --network)
+    NETWORK=$2
+    ;;
+  esac
+  shift
+done
+
+# Get the list of branches from the repository
+BRANCHES=$(git branch --format='%(refname:short)')
+select BRANCH in $BRANCHES; do
+  if [ ! -z "$BRANCH" ]; then
+    break
+  fi
+done
+
+# Save current working directory and stash changes if needed
+cwd=$(pwd)
+if [ -n "$(git status --porcelain)" ]; then
+  git stash
+fi
+
+# Checkout the selected branch and install npm dependencies
+git checkout $BRANCH
+npm ci -q --no-progress
+
+# Compile project
+npx hardhat compile --force
+
+# Run script to deploy the contracts
+npx hardhat run --network "$NETWORK" scripts/deploy.js
+
+if [[ $NETWORK == "mainnet" || $NETWORK == "goerli" ]]; then
+
+  # Update .openzeppelin metadata
+  git add .openzeppelin/"$NETWORK".json
+  git commit -m "Update .openzeppelin folder"
+  git push -u origin $branch
+
+  DIR="docs/$NETWORK/abi"
+
+  echo "DIR $DIR"
+  git checkout gh-pages
+
+  # Publish the ABI to a specific GitHub Pages location
+  mkdir -p $DIR
+  cp abi/*.json $DIR
+
+  git add $DIR
+  git commit -m "Publish ABI for deployment to $NETWORK"
+  git push -u origin gh-pages
+fi
+
+# Return to previous branch and pop stash if needed
+git checkout $cwd
+if [ -n "$(git stash list)" ]; then
+  git stash apply
+fi
