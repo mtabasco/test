@@ -32,7 +32,7 @@ contract Lock is UUPSUpgradeable, Ownable2StepUpgradeable {
 
         emit Withdrawal(address(this).balance, block.timestamp);
     }
-/*
+
     function getTime() external view returns (uint256) {
         return block.timestamp;
     }
@@ -40,5 +40,5 @@ contract Lock is UUPSUpgradeable, Ownable2StepUpgradeable {
     function getTime1() external view returns (uint256) {
         return block.timestamp + 1;
     }
-    */
+
 }

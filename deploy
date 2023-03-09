@@ -57,7 +57,7 @@ if [[ $NETWORK == "mainnet" || $NETWORK == "goerli" ]]; then
 fi
 
 # Return to previous branch and pop stash if needed
-#git checkout $cwd
-#if [ -n "$(git stash list)" ]; then
-#  git stash pop
-#fi
+git checkout $cwd
+if [ -n "$(git stash list)" ]; then
+  git stash pop
+fi
