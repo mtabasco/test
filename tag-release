@@ -213,7 +213,7 @@ if [ -z "$NEEDSTAG" ]; then
     conditional_echo "-- Release number: $NEWTAG"
 
     # Check to see if new tag already exists
-    TAGEXISTS=$(echo $(git ls-remote --tags --ref $REMOTE | grep "$NEWTAG"))
+    TAGEXISTS=$(echo $(git ls-remote --tags --ref $REMOTE | grep -w "$NEWTAG$"))
 
     if [ -z "$TAGEXISTS" ]; then
         # Check if release notes were not provided.
