@@ -13,6 +13,6 @@ contract Lock2 is Lock {
     }
 
     function setTime() external {
-        newTime = block.timestamp + 10;
+        newTime = block.timestamp + 12;
     }
 }

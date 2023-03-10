@@ -149,7 +149,7 @@ git fetch $REMOTE "${GITPARAMS[@]}"
 
 # Get previous release tags
 conditional_echo "- Getting previous tag."
-PREVIOUS_TAG=$(echo $(git ls-remote --tags --ref --sort="v:refname" $REMOTE | tail -n1))
+PREVIOUS_TAG=$(echo $(git ls-remote --tags --ref | awk -F/ '{print $NF}' | sed -e 's/^v//' -e 's/-rc.*//' | sort -t. -k1,1n -k2,2n -k3,3n | tail -n1))
 
 # If specific commit not set, get the from the previous release.
 if [ -z "$PREVIOUS_COMMIT" ]; then
