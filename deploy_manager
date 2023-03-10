@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ABIDIR=""
+ACTION=""
 NETWORK="localhost"
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 VERSIONTYPE="patch"
@@ -14,12 +15,17 @@ while [[ "$#" -gt 0 ]]; do
   -t | --type)
     VERSIONTYPE=$2
     ;;
-  -o | --omit-version)
-    OMITVERSION="1"
+  -a | --action)
+    ACTION=$2
     ;;
   esac
   shift
 done
+
+if [ "$ACTION" == "" ]; then
+  echo "-- ERROR: ACTION option is mandatory. Possible values: [deploy | upgrade]"
+  exit 1
+fi
 
 # Get the list of branches from the repository
 BRANCHES=$(git branch --format='%(refname:short)')
@@ -36,12 +42,17 @@ npm ci -q --no-progress
 # Compile project
 npx hardhat compile --force
 
-if [[ "$OMITVERSION" -eq 0 ]]; then
-  source ./tag-release -b "$BRANCH" -t "$VERSIONTYPE" -n
-fi
+source ./tag-release -b "$BRANCH" -t "$VERSIONTYPE" -n
 
-# Run script to deploy the contracts
-npx hardhat run --network "$NETWORK" scripts/deploy.js "$TAGVERSION"
+if [ "$ACTION" == "deploy" ]; then
+  # Run script to deploy the contracts
+  npx hardhat --network "$NETWORK" deploy:contracts --tag "$TAGVERSION"
+elif [ "$ACTION" == "upgrade" ]; then
+  npx hardhat --network "$NETWORK" upgrade:Lock --tag "$TAGVERSION"
+else
+  echo "-- ERROR: Wrong ACTION value. Possible values: [deploy | upgrade]"
+  exit 1
+fi
 
 if [[ $NETWORK == "mainnet" || $NETWORK == "goerli" ]]; then
 
