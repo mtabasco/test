@@ -10,7 +10,6 @@ RUNSILENT="0"
 VERBOSE="0"
 VERSIONTYPE=""
 
-
 # Function to return help text when requested with -h option.
 help() {
     # Display help.
@@ -55,10 +54,15 @@ help() {
     echo
     echo "-t,--version-type [major|minor|patch]"
     echo "      Type of semantic version to create. Valid options are 'major', 'minor' or 'patch'"
-    echo "          major: Will bump up to next major release (i.e 1.0.0 -> 2.0.0)"
-    echo "          minor: Will bump up to next minor release (i.e 1.0.1 -> 1.1.0)"
-    echo "          patch: Will bump up to next patch release (i.e 1.0.2 -> 1.0.3)"
-    echo "      If ommited, will default to '$VERSIONTYPE'"
+    echo "          major: Will bump up to next major release (i.e v1.0.0 -> v2.0.0)"
+    echo "          minor: Will bump up to next minor release (i.e v1.0.1 -> v1.1.0)"
+    echo "          patch: Will bump up to next patch release (i.e v1.0.2 -> v1.0.3)"
+    echo "      Rules:"
+    echo "      Tags created using 'stage' branch are treated as RCs (i.e v0.1.0-rc.0 -> v0.1.0-rc.1 ...)"
+    echo "      Tags created using 'main' branch are treated as releases (i.e v0.1.0-rc.1 becomes v0.1.0)"
+    echo "      In both cases, if a version-type parameter is passed, the rule is override (i.e v0.1.0-rc.2 -> -t minor -> v0.2.0-rc.0)"
+    echo "      Tags created using 'develop' branch are not tagged"
+    echo "      If ommited, will default to current version"
     echo
     echo "-v,--verbose"
     echo "      Run verbosley."
@@ -71,39 +75,38 @@ conditional_echo() {
     fi
 }
 
-while [[ "$#" -gt 0 ]]
-do
+while [[ "$#" -gt 0 ]]; do
     case $1 in
-      -b|--branch)
+    -b | --branch)
         BRANCH=$2
         ;;
-      -d|--date)
+    -d | --date)
         RELEASEDATE=$2
         ;;
-      -h|--help|help)
+    -h | --help | help)
         help
         exit
         ;;
-      -m|--message)
+    -m | --message)
         RELEASENOTES=$2
         ;;
-      -n|--dry-run)
+    -n | --dry-run)
         DRYRUN="1"
         ;;
-      -p|--previous)
+    -p | --previous)
         PREVIOUS_COMMIT=$2
         ;;
-      -r|--remote)
+    -r | --remote)
         REMOTE=$2
         ;;
-      -t|--type)
+    -t | --type)
         VERSIONTYPE=$2
         ;;
-      -q|--quiet)
+    -q | --quiet)
         RUNQUIET="1"
         GITPARAMS+=(--dry-run)
         ;;
-      -v|--verbose)
+    -v | --verbose)
         # See if a second argument is passed, due to argument reassignment to -v.
         if [[ "$1" == "-v" ]] && [[ -n "$2" ]]; then
             echo "ERROR: Unsupported value \"$2\" passed to -v argument. If trying to set semantic version tag, use the -t or --type argument".
@@ -183,14 +186,14 @@ if [ -z "$NEEDSTAG" ]; then
     VNUM3=${VERSION_BITS[2]//[^0-9]/}
     # Update tagging number based on option that was passed.
     if [ "$VERSIONTYPE" == "major" ]; then
-        VNUM1=$((VNUM1+1))
+        VNUM1=$((VNUM1 + 1))
         VNUM2=0
         VNUM3=0
     elif [ "$VERSIONTYPE" == "minor" ]; then
-        VNUM2=$((VNUM2+1))
+        VNUM2=$((VNUM2 + 1))
         VNUM3=0
     elif [ "$VERSIONTYPE" == "patch" ]; then
-        VNUM3=$((VNUM3+1))
+        VNUM3=$((VNUM3 + 1))
     fi
 
     # Update tagging number based on option that was passed.
@@ -198,7 +201,7 @@ if [ -z "$NEEDSTAG" ]; then
         if [[ $PREVIOUS_RELEASE == "v${VNUM1}.${VNUM2}.${VNUM3}-rc"* ]]; then
             # Extract the current rc suffix and increment it by one
             RC_SUFFIX=$(echo $PREVIOUS_TAG | sed -n 's/.*-rc\.\([[:digit:]]\{1,\}\)$/\1/p')
-            NEW_RC_SUFFIX=$((RC_SUFFIX+1))
+            NEW_RC_SUFFIX=$((RC_SUFFIX + 1))
             NEWTAG="v${VNUM1}.${VNUM2}.${VNUM3}-rc.${NEW_RC_SUFFIX}"
         else
             NEWTAG="v${VNUM1}.${VNUM2}.${VNUM3}-rc.0"
@@ -220,7 +223,7 @@ if [ -z "$NEEDSTAG" ]; then
         if [ -z "$RELEASENOTES" ]; then
             conditional_echo "- Generating basic release notes of commits since last release."
             # Generate a list of commit messages since the last release.
-            RELEASENOTES=$(git log --pretty=format:"- %s" $PREVIOUS_COMMIT...$LASTCOMMIT  --no-merges)
+            RELEASENOTES=$(git log --pretty=format:"- %s" $PREVIOUS_COMMIT...$LASTCOMMIT --no-merges)
         fi
         # Tag the commit.
         if [[ "$DRYRUN" -eq 0 ]]; then
