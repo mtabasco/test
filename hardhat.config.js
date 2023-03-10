@@ -35,7 +35,7 @@ task("upgrade:Lock", "Upgrade Lock")
       const Lock2 = await ethers.getContractFactory("Lock2");
 
       //await upgrades.forceImport('0x81d9Ff669e40b4237B5e3Ced62b71a6f08665f3d', Lock, { kind: 'uups' });
-      await upgrades.upgradeProxy('0x4c115F5948Ba632fF9B0a5a40f84Af9A825484e0', Lock2, {
+      await upgrades.upgradeProxy('0xea47fbBD011d4C871A858087b11c7653DF4dD63F', Lock2, {
         kind: 'uups',
         call: {
           fn: 'initializev2',
