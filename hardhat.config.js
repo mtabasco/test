@@ -36,7 +36,7 @@ task("upgrade:Lock", "Upgrade Lock")
       await upgrades.upgradeProxy('0xAdfB55F01564CFcc30534B056e63B33bdd8D08f4', Lock2, {
         kind: 'uups',
         call: {
-          fn: 'initializev3',
+          fn: 'initializev2',
           args: [tag]
         }
       });
