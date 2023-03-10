@@ -160,9 +160,7 @@ fi
 conditional_echo "-- PREVIOUS TAG: $PREVIOUS_TAG"
 
 # Get previous release number
-PREVIOUS_RELEASE=$(echo $PREVIOUS_TAG | awk -F/ '{print $3}' | sed 's/^v//;s/rc.*//;s/-.*//')
-
-conditional_echo "-- PREVIOUS_RELEASE: $PREVIOUS_RELEASE"
+#PREVIOUS_RELEASE=$(echo $PREVIOUS_TAG | awk -F/ '{print $3}' | sed 's/^v//;s/rc.*//;s/-.*//')
 
 conditional_echo "- Creating release tag"
 # Get last commit
@@ -173,7 +171,7 @@ NEEDSTAG=$(echo $(git describe --contains $LASTCOMMIT 2>/dev/null))
 if [ -z "$NEEDSTAG" ]; then
     conditional_echo "-- Generating release number ($VERSIONTYPE)"
     # Replace . with spaces so that can split into an array.
-    VERSION_BITS=(${PREVIOUS_RELEASE//./ })
+    VERSION_BITS=(${PREVIOUS_TAG//./ })
     # Get number parts, only the digits.
     VNUM1=${VERSION_BITS[0]//[^0-9]/}
     VNUM2=${VERSION_BITS[1]//[^[0-9]/}
