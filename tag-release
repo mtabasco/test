@@ -9,7 +9,7 @@ REMOTE="origin"
 PREVIOUS_COMMIT=""
 RUNSILENT="0"
 VERBOSE="0"
-VERSIONTYPE="patch"
+#VERSIONTYPE="patch"
 
 
 # Function to return help text when requested with -h option.
