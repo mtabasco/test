@@ -43,11 +43,11 @@ run_command() {
 }
 
 # Checkout the selected branch and install npm dependencies
-run_command git checkout $BRANCH
-run_command npm ci -q --no-progress
+git checkout $BRANCH
+npm ci -q --no-progress
 
 # Compile project
-run_command npx hardhat compile --force
+npx hardhat compile --force
 
 # Only deployments for stage and main branches are tagged
 if [[ $BRANCH == "stage" || $BRANCH == "main" ]]; then
@@ -58,10 +58,10 @@ fi
 
 if [ "$ACTION" == "deploy" ]; then
   # Run script to deploy the contracts
-  run_command npx hardhat --network "$NETWORK" deploy:contracts --tag "$TAGVERSION"
+  npx hardhat --network "$NETWORK" deploy:contracts --tag "$TAGVERSION"
 elif [ "$ACTION" == "upgrade" ]; then
   # Run script to upgrade the contracts
-  run_command npx hardhat --network "$NETWORK" upgrade:Lock --tag "$TAGVERSION"
+  npx hardhat --network "$NETWORK" upgrade:Lock --tag "$TAGVERSION"
 else
   echo "-- ERROR: Wrong ACTION value. Possible values: [deploy | upgrade]"
   exit 1
@@ -70,24 +70,24 @@ fi
 if [[ $NETWORK == "mainnet" || $NETWORK == "goerli" ]]; then
 
   # Update .openzeppelin metadata
-  run_command git add .openzeppelin/"$NETWORK".json
-  run_command git commit -m "Update .openzeppelin folder"
-  run_command git push -u origin $branch
+  git add .openzeppelin/"$NETWORK".json
+  git commit -m "Update .openzeppelin folder"
+  git push -u origin $branch
 
   if [[ $BRANCH == "stage" || $BRANCH == "main" ]]; then
     source ./tag-release -b "$BRANCH" -t "$VERSIONTYPE"
   fi
   ABIDIR="docs/$NETWORK/abi/$TAGVERSION"
 
-  run_command git checkout gh-pages
+  git checkout gh-pages
 
   # Publish the ABI to a specific GitHub Pages location
   mkdir -p $ABIDIR
   cp abi/*.json $ABIDIR
 
-  run_command git add $ABIDIR
-  run_command git commit -m "Publish ABI for deployment to $NETWORK"
-  run_command git push -u -f origin gh-pages
+  git add $ABIDIR
+  git commit -m "Publish ABI for deployment to $NETWORK"
+  git push -u -f origin gh-pages
 fi
 
-run_command git checkout $CURRENT_BRANCH
+git checkout $CURRENT_BRANCH
