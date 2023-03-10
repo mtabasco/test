@@ -1,9 +1,10 @@
 #!/bin/bash
 
-DIR=""
+ABIDIR=""
 NETWORK="localhost"
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 VERSIONTYPE="patch"
+OMITVERSION="0"
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
@@ -13,8 +14,8 @@ while [[ "$#" -gt 0 ]]; do
   -t | --type)
     VERSIONTYPE=$2
     ;;
-  -x | --no-abi)
-    VERSIONTYPE=$2
+  -o | --omit-version)
+    OMITVERSION="1"
     ;;
   esac
   shift
@@ -35,8 +36,12 @@ npm ci -q --no-progress
 # Compile project
 npx hardhat compile --force
 
+if [[ "$OMITVERSION" -eq 0 ]]; then
+  source ./tag-release -b "$BRANCH" -t "$VERSIONTYPE" -n
+fi
+
 # Run script to deploy the contracts
-npx hardhat run --network "$NETWORK" scripts/deploy.js
+npx hardhat run --network "$NETWORK" scripts/deploy.js "$TAGVERSION"
 
 if [[ $NETWORK == "mainnet" || $NETWORK == "goerli" ]]; then
 
@@ -47,18 +52,18 @@ if [[ $NETWORK == "mainnet" || $NETWORK == "goerli" ]]; then
 
   if [[ $BRANCH == "stage" || $BRANCH == "main" ]]; then
     source ./tag-release -b "$BRANCH" -t "$VERSIONTYPE"
-    DIR="docs/$NETWORK/abi/$TAGVERSION"
+    ABIDIR="docs/$NETWORK/abi/$TAGVERSION"
   else
-    DIR="docs/$NETWORK/abi/untagged"
+    ABIDIR="docs/$NETWORK/abi/untagged"
   fi
 
   git checkout gh-pages
 
   # Publish the ABI to a specific GitHub Pages location
-  mkdir -p $DIR
-  cp abi/*.json $DIR
+  mkdir -p $ABIDIR
+  cp abi/*.json $ABIDIR
 
-  git add $DIR
+  git add $ABIDIR
   git commit -m "Publish ABI for deployment to $NETWORK"
   git push -u -f origin gh-pages
 fi
