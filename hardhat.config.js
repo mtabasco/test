@@ -18,9 +18,7 @@ task("deploy:contracts", "A sample deploy")
         await fs.mkdir('abi/', { recursive: true });
         await fs.writeFile(`abi/${contractName}.json`, `${JSON.stringify(lockABI, null, 2)}\n`, { flag: 'w' });
       }
-      console.log(
-        `Version ${tag} deployed to ${lock.address}`
-      );
+      console.log(`Version ${tag} deployed to ${lock.address}`);
     } catch (error) {
       console.error(error);
       process.exitCode = 1;
@@ -31,11 +29,11 @@ task("upgrade:Lock", "Upgrade Lock")
   .addParam("tag", "Version of the contract")
   .setAction(async ({ tag }) => {
     try {
-      //const Lock2 = await ethers.getContractFactory("Lock2");
-      const Lock3 = await ethers.getContractFactory("Lock3");
+      const Lock2 = await ethers.getContractFactory("Lock2");
+      //const Lock3 = await ethers.getContractFactory("Lock3");
 
       //await upgrades.forceImport('0x81d9Ff669e40b4237B5e3Ced62b71a6f08665f3d', Lock, { kind: 'uups' });
-      await upgrades.upgradeProxy('0xea47fbBD011d4C871A858087b11c7653DF4dD63F', Lock3, {
+      await upgrades.upgradeProxy('0xAdfB55F01564CFcc30534B056e63B33bdd8D08f4', Lock2, {
         kind: 'uups',
         call: {
           fn: 'initializev3',
@@ -44,9 +42,7 @@ task("upgrade:Lock", "Upgrade Lock")
       });
 
       console.log("Lock upgraded successfully");
-      console.log(
-        `Version ${tag} deployed`
-      );
+      console.log(`Version ${tag} deployed`);
     } catch (error) {
       console.error(error);
       process.exitCode = 1;
