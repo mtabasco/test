@@ -5,44 +5,52 @@ const fs = require('fs').promises;
 task("deploy:contracts", "A sample deploy")
   .addParam("tag", "Version of the contract")
   .setAction(async ({ tag }) => {
+    try {
+      const Lock = await hre.ethers.getContractFactory("Lock");
+      const lock = await upgrades.deployProxy(Lock, [tag], { kind: 'uups' });
+      // const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+      await lock.deployed();
 
-    const Lock = await hre.ethers.getContractFactory("Lock");
-    const lock = await upgrades.deployProxy(Lock, [tag], { kind: 'uups' });
-    // const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
-    await lock.deployed();
+      // Only extract ABIs for mainnet or goerli deployments
+      if (hre.network.name == 'goerli' || hre.network.name == 'mainnet') {
+        const { abi: lockABI, contractName } = await hre.artifacts.readArtifact("Lock");
 
-    // Only extract ABIs for mainnet or goerli deployments
-    if (hre.network.name == 'goerli' || hre.network.name == 'mainnet') {
-      const { abi: lockABI, contractName } = await hre.artifacts.readArtifact("Lock");
-
-      await fs.mkdir('abi/', { recursive: true });
-      await fs.writeFile(`abi/${contractName}.json`, `${JSON.stringify(lockABI, null, 2)}\n`, { flag: 'w' });
+        await fs.mkdir('abi/', { recursive: true });
+        await fs.writeFile(`abi/${contractName}.json`, `${JSON.stringify(lockABI, null, 2)}\n`, { flag: 'w' });
+      }
+      console.log(
+        `Version ${tag} deployed to ${lock.address}`
+      );
+    } catch (error) {
+      console.error(error);
+      process.exitCode = 1;
     }
-    console.log(
-      `Version ${tag} deployed to ${lock.address}`
-    );
   });
 
 task("upgrade:Lock", "Upgrade Lock")
   .addParam("tag", "Version of the contract")
   .setAction(async ({ tag }) => {
+    try {
+      //const Lock2 = await ethers.getContractFactory("Lock2");
+      const Lock2 = await ethers.getContractFactory("Lock2");
 
-    //const Lock2 = await ethers.getContractFactory("Lock2");
-    const Lock2 = await ethers.getContractFactory("Lock2");
+      //await upgrades.forceImport('0x81d9Ff669e40b4237B5e3Ced62b71a6f08665f3d', Lock, { kind: 'uups' });
+      await upgrades.upgradeProxy('0x4c115F5948Ba632fF9B0a5a40f84Af9A825484e0', Lock2, {
+        kind: 'uups',
+        call: {
+          fn: 'initializev2',
+          args: [tag]
+        }
+      });
 
-    //await upgrades.forceImport('0x81d9Ff669e40b4237B5e3Ced62b71a6f08665f3d', Lock, { kind: 'uups' });
-    await upgrades.upgradeProxy('0x4c115F5948Ba632fF9B0a5a40f84Af9A825484e0', Lock2, {
-      kind: 'uups',
-      call: {
-        fn: 'initializev2',
-        args: [tag]
-      }
-    });
-
-    console.log("Lock upgraded successfully");
-    console.log(
-      `Version ${tag} deployed`
-    );
+      console.log("Lock upgraded successfully");
+      console.log(
+        `Version ${tag} deployed`
+      );
+    } catch (error) {
+      console.error(error);
+      process.exitCode = 1;
+    }
   });
 
 /** @type import('hardhat/config').HardhatUserConfig */
