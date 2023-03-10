@@ -8,6 +8,7 @@ import "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 
 contract Lock is UUPSUpgradeable, Ownable2StepUpgradeable {
     string public version;
+    uint public coco = 10_000;
 
     function _authorizeUpgrade(address) internal override onlyOwner {}
 
