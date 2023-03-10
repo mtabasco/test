@@ -36,7 +36,7 @@ select BRANCH in $BRANCHES; do
 done
 
 run_command() {
-  if ! "$@" > /dev/null 2>&1; then
+  if ! "$@" >/dev/null 2>&1; then
     echo "$1 command failed"
     exit 1
   fi
@@ -49,12 +49,18 @@ run_command npm ci -q --no-progress
 # Compile project
 run_command npx hardhat compile --force
 
-source ./tag-release -b "$BRANCH" -t "$VERSIONTYPE" -n
+# Only deployments for stage and main branches are tagged
+if [[ $BRANCH == "stage" || $BRANCH == "main" ]]; then
+  source ./tag-release -b "$BRANCH" -n -t "$VERSIONTYPE"
+else
+  TAGVERSION="dev"
+fi
 
 if [ "$ACTION" == "deploy" ]; then
   # Run script to deploy the contracts
   run_command npx hardhat --network "$NETWORK" deploy:contracts --tag "$TAGVERSION"
 elif [ "$ACTION" == "upgrade" ]; then
+  # Run script to upgrade the contracts
   run_command npx hardhat --network "$NETWORK" upgrade:Lock --tag "$TAGVERSION"
 else
   echo "-- ERROR: Wrong ACTION value. Possible values: [deploy | upgrade]"
@@ -70,10 +76,8 @@ if [[ $NETWORK == "mainnet" || $NETWORK == "goerli" ]]; then
 
   if [[ $BRANCH == "stage" || $BRANCH == "main" ]]; then
     source ./tag-release -b "$BRANCH" -t "$VERSIONTYPE"
-    ABIDIR="docs/$NETWORK/abi/$TAGVERSION"
-  else
-    ABIDIR="docs/$NETWORK/abi/untagged"
   fi
+  ABIDIR="docs/$NETWORK/abi/$TAGVERSION"
 
   run_command git checkout gh-pages
 
