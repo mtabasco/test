@@ -19,6 +19,6 @@ contract Lock is UUPSUpgradeable, Ownable2StepUpgradeable {
     }
 
     function getTime() external view returns (uint256) {
-        return block.timestamp;
+        return block.timestamp + 1;
     }
 }
