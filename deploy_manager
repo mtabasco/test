@@ -4,7 +4,7 @@ ABIDIR=""
 ACTION=""
 NETWORK="localhost"
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-VERSIONTYPE="patch"
+VERSIONTYPE=""
 OMITVERSION="0"
 
 while [[ "$#" -gt 0 ]]; do
