@@ -1,0 +1,48 @@
+#!/bin/bash
+PREVIOUS_TAG="v0.0.1"
+BRANCH="develop"
+VERSIONTYPE="patch"
+
+conditional_echo() {
+    if [[ "$RUNQUIET" -eq 0 ]]; then
+        echo "$1"
+    fi
+}
+
+conditional_echo "-- Generating release number ($VERSIONTYPE)"
+# Replace . with spaces so that can split into an array.
+VERSION_BITS=(${PREVIOUS_TAG//./ })
+# Get number parts, only the digits.
+VNUM1=${VERSION_BITS[0]//[^0-9]/}
+VNUM2=${VERSION_BITS[1]//[^[0-9]/}
+VNUM3=${VERSION_BITS[2]//[^0-9]/}
+# Update tagging number based on option that was passed.
+if [ "$VERSIONTYPE" == "major" ]; then
+    VNUM1=$((VNUM1 + 1))
+    VNUM2=0
+    VNUM3=0
+elif [ "$VERSIONTYPE" == "minor" ]; then
+    VNUM2=$((VNUM2 + 1))
+    VNUM3=0
+elif [ "$VERSIONTYPE" == "patch" ]; then
+    VNUM3=$((VNUM3 + 1))
+fi
+
+# Update tagging number based on option that was passed.
+if [ "$BRANCH" == "stage" ]; then
+    if [[ $PREVIOUS_TAG == "v${VNUM1}.${VNUM2}.${VNUM3}-rc"* ]]; then
+        # Extract the current rc suffix and increment it by one
+        RC_SUFFIX=$(echo $PREVIOUS_TAG | sed -n 's/.*-rc\.\([[:digit:]]\{1,\}\)$/\1/p')
+        NEW_RC_SUFFIX=$((RC_SUFFIX + 1))
+        NEWTAG="v${VNUM1}.${VNUM2}.${VNUM3}-rc.${NEW_RC_SUFFIX}"
+    else
+        NEWTAG="v${VNUM1}.${VNUM2}.${VNUM3}-rc.0"
+    fi
+elif [ "$BRANCH" == "main" ]; then
+    if [[ $PREVIOUS_TAG == "v${VNUM1}.${VNUM2}.${VNUM3}-rc"* ]]; then
+        NEWTAG="v${VNUM1}.${VNUM2}.${VNUM3}"
+    else
+        NEWTAG="v${VNUM1}.${VNUM2}.${VNUM3}"
+    fi
+fi
+conditional_echo "-- Release number: $NEWTAG"
