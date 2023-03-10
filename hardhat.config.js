@@ -32,13 +32,13 @@ task("upgrade:Lock", "Upgrade Lock")
   .setAction(async ({ tag }) => {
     try {
       //const Lock2 = await ethers.getContractFactory("Lock2");
-      const Lock2 = await ethers.getContractFactory("Lock2");
+      const Lock3 = await ethers.getContractFactory("Lock3");
 
       //await upgrades.forceImport('0x81d9Ff669e40b4237B5e3Ced62b71a6f08665f3d', Lock, { kind: 'uups' });
-      await upgrades.upgradeProxy('0xea47fbBD011d4C871A858087b11c7653DF4dD63F', Lock2, {
+      await upgrades.upgradeProxy('0xea47fbBD011d4C871A858087b11c7653DF4dD63F', Lock3, {
         kind: 'uups',
         call: {
-          fn: 'initializev2',
+          fn: 'initializev3',
           args: [tag]
         }
       });
@@ -61,5 +61,10 @@ module.exports = {
       url: 'https://goerli.infura.io/v3/1810bc4fb927499990638f8451a455e4',
       accounts: ['0xae87f9772e5ce51b9aed74ea3614a4c2c6032eba125c92bdc65535ab4f34a5bc']
     }
+  },
+  etherscan: {
+    // Your API key for Etherscan
+    // Obtain one at https://etherscan.io/
+    apiKey: "9KSBBHVJ7R9QKYGQW4R3CNM5GZE8YBQ7YR"
   },
 };
